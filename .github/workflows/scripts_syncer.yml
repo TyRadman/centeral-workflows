@@ -4,7 +4,11 @@ on:
   workflow_call:
     inputs:
       target_repo:
-        description: "Target repository name where scripts are stored"
+        description: "Target repository name where scripts will be stored"
+        required: true
+        type: string
+      source_folder:
+        description: "Path to the folder containing scripts in the source repository"
         required: true
         type: string
 
@@ -18,7 +22,7 @@ jobs:
       - name: Extract only the Scripts folder (excluding .meta files)
         run: |
           mkdir -p scripts
-          rsync -av --exclude='*.meta' Assets/_Scripts/ scripts/
+          rsync -av --exclude='*.meta' ${{ inputs.source_folder }}/ scripts/
 
       - name: Clone the target repository (where scripts will be stored)
         run: |
@@ -35,5 +39,5 @@ jobs:
         run: |
           cd ${{ inputs.target_repo }}
           git add .
-          git commit -m "Automated update: Synced project scripts to public scripts repo"
+          git commit -m "Automated update: Synced project scripts from ${{ inputs.source_folder }} to public scripts repo"
           git push
