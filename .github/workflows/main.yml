@@ -7,7 +7,7 @@ on:
 
 jobs:
   project1_sync:
-    uses: TyRadman/centeral-workflows/.github/workflows/sync_scripts.yml@main
+    uses: TyRadman/central-workflows/.github/workflows/sync_scripts.yml@main
     with:
       project_repo: "TyRadman/Tanklike"
       scripts_repo: "TyRadman/tanklike-scripts"
