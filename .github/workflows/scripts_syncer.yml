@@ -34,7 +34,7 @@ jobs:
         run: |
           git config --global user.name "Ty Radman"
           git config --global user.email "timdesign1996@gmail.com"
-          git clone https://${{ secrets.REPO_KEY }}@github.com/${{ inputs.scripts_repo }}
+          git clone https://github.com/${{ inputs.scripts_repo }}.git
 
       - name: Copy Extracted Scripts to Target Repo
         run: |
