@@ -1,14 +1,18 @@
-name: Sync Scripts to Target Repo
+name: Sync Scripts for a Project
 
 on:
   workflow_call:
     inputs:
-      target_repo:
-        description: "Target repository name where scripts will be stored"
+      project_repo:
+        description: "Full project repository name (e.g., TyRadman/project1)"
+        required: true
+        type: string
+      scripts_repo:
+        description: "Target scripts repository name (e.g., TyRadman/project1-scripts)"
         required: true
         type: string
       source_folder:
-        description: "Path to the folder containing scripts in the source repository"
+        description: "Folder in project repo containing scripts"
         required: true
         type: string
 
@@ -16,29 +20,31 @@ jobs:
   sync-scripts:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the full project repository
+      - name: Checkout Project Repository
         uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.project_repo }}
+          token: ${{ secrets.REPO_KEY }} # Secret is used directly inside
 
-      - name: Extract only the Scripts folder (excluding .meta files)
+      - name: Extract Only the Scripts Folder
         run: |
           mkdir -p scripts
           rsync -av --exclude='*.meta' ${{ inputs.source_folder }}/ scripts/
 
-      - name: Clone the target repository (where scripts will be stored)
+      - name: Clone Target Scripts Repository
         run: |
           git config --global user.name "Ty Radman"
           git config --global user.email "timdesign1996@gmail.com"
-          git clone https://${{ secrets.REPO_KEY }}@github.com/TyRadman/${{ inputs.target_repo }}
+          git clone https://${{ secrets.REPO_KEY }}@github.com/${{ inputs.scripts_repo }}
 
-
-      - name: Copy extracted scripts to the target repository
+      - name: Copy Extracted Scripts to Target Repo
         run: |
-          mkdir -p ${{ inputs.target_repo }}/Scripts
-          cp -r scripts/* ${{ inputs.target_repo }}/Scripts/
+          mkdir -p ${{ inputs.scripts_repo }}/Scripts
+          cp -r scripts/* ${{ inputs.scripts_repo }}/Scripts/
 
-      - name: Commit and push changes to the target repo
+      - name: Commit and Push Changes
         run: |
-          cd ${{ inputs.target_repo }}
+          cd ${{ inputs.scripts_repo }}
           git add .
-          git commit -m "Automated update: Synced project scripts from ${{ inputs.source_folder }} to public scripts repo"
+          git commit -m "Automated update: Synced scripts from ${{ inputs.project_repo }}"
           git push
