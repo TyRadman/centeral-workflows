@@ -1,0 +1,14 @@
+name: Sync All Project Scripts
+
+on:
+  schedule:
+    - cron: '0 0 */7 * *' # Runs every 7 days
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  project1_sync:
+    uses: TyRadman/centeral-workflows/.github/workflows/sync_scripts.yml@main
+    with:
+      project_repo: "TyRadman/Tanklike"
+      scripts_repo: "TyRadman/tanklike-scripts"
+      source_folder: "Assets/_Code"
