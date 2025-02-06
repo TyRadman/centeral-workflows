@@ -1,0 +1,39 @@
+name: Sync Scripts to Target Repo
+
+on:
+  workflow_call:
+    inputs:
+      target_repo:
+        description: "Target repository name where scripts are stored"
+        required: true
+        type: string
+
+jobs:
+  sync-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the full project repository
+        uses: actions/checkout@v3
+
+      - name: Extract only the Scripts folder (excluding .meta files)
+        run: |
+          mkdir -p scripts
+          rsync -av --exclude='*.meta' Assets/_Scripts/ scripts/
+
+      - name: Clone the target repository (where scripts will be stored)
+        run: |
+          git config --global user.name "Ty Radman"
+          git config --global user.email "timdesign1996@gmail.com"
+          git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/TyRadman/${{ inputs.target_repo }}
+
+      - name: Copy extracted scripts to the target repository
+        run: |
+          mkdir -p ${{ inputs.target_repo }}/Scripts
+          cp -r scripts/* ${{ inputs.target_repo }}/Scripts/
+
+      - name: Commit and push changes to the target repo
+        run: |
+          cd ${{ inputs.target_repo }}
+          git add .
+          git commit -m "Automated update: Synced project scripts to public scripts repo"
+          git push
